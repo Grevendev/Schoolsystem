@@ -1,0 +1,55 @@
+# Build results
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+
+# Logs
+*.log
+*.tlog
+*.vspscc
+
+# Visual Studio Code
+.vscode/
+
+# Visual Studio
+.vs/
+
+# Rider
+.idea/
+*.sln.iml
+
+# Packages
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+*.csproj.user
+
+# Generated files
+*.g.*
+*.generated.cs
+*.designer.cs
+
+# Backup files
+*.bak
+*.old
+*.orig
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Other
+*.lock.json
+project.lock.json
