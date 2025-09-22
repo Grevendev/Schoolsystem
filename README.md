@@ -127,3 +127,9 @@ Students can view tasks, submit work, and see their own results.
 
 ## Author
 Created as a school management simulation project in C# Console.
+
+---
+
+
+## Password
+Created so you can change password, but i made it so it can be tracked. I know it's not safe. But for this school project i wanted to find it easily. 

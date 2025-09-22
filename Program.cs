@@ -45,7 +45,7 @@ while (running)
 
     foreach (IUSer user in users)
     {
-      if (user.TryLogin(username, _password))
+      if (user.TryLogin(username, _password) && user.IsActive)
       {
         active_user = user;
 
@@ -73,34 +73,37 @@ while (running)
       case Role.Admin:
         Console.WriteLine("Welcome Admin");
         Console.WriteLine("Options: ");
-        Console.WriteLine("Admin      - go to Admin menu");
-        Console.WriteLine("Teacher    - go to Teacher menu");
-        Console.WriteLine("Student    - go to Student menu");
-        Console.WriteLine("REMOVE     - remove a Teacher or Student directly");
-        Console.WriteLine("SHOWALL    - show all users (Admins, Teachers, Students)");
+        Console.WriteLine("Admin          - go to Admin menu");
+        Console.WriteLine("Teacher        - go to Teacher menu");
+        Console.WriteLine("Student        - go to Student menu");
+        Console.WriteLine("REMOVE         - remove a Teacher or Student directly");
+        Console.WriteLine("SHOWALL        - show all users (Admins, Teachers, Students)");
         Console.WriteLine("CREATESCHEDULE - create a new schedule entry");
-        Console.WriteLine("SCHEDULE   - show all schedules");
+        Console.WriteLine("SCHEDULE       - show all schedules");
         Console.WriteLine("UPDATESCHEDULE - update a schedule entry");
         Console.WriteLine("REMOVESCHEDULE - remove a schedule entry");
         Console.WriteLine("ASSIGNTEACHER  - assign a teacher to a course");
         Console.WriteLine("ASSIGNSTUDENT  - assign a student to a course");
-        Console.WriteLine("SEARCHUSER - search for a user");
-        Console.WriteLine("EDITUSER   - edit user info");
-        Console.WriteLine("RESET      - reset a user's password");
-        Console.WriteLine("STATS      - show basic stats");
-        Console.WriteLine("GRADESTATS - show grade distribution");
-        Console.WriteLine("COURSESTATS - show course stats");
-        Console.WriteLine("ACTIVITYSTATS - show user activity");
-        Console.WriteLine("MESSAGE    - send notifications");
-        Console.WriteLine("INBOX      - read your messages");
-        Console.WriteLine("LOGS       - show system logs");
-        Console.WriteLine("SAVELOGS   - save logs to file");
-        Console.WriteLine("CLEARLOGS  - clear system logs");
-        Console.WriteLine("VIEWMESSAGES - view all messages in system");
-        Console.WriteLine("FORCELOGOUT  - force logout a user");
-        Console.WriteLine("BACKUP    - save backup of all data");
-        Console.WriteLine("RESTORE   - restore backup");
-        Console.WriteLine("Logout    - log out");
+        Console.WriteLine("SEARCHUSER     - search for a user");
+        Console.WriteLine("EDITUSER       - edit user info");
+        Console.WriteLine("RESET          - reset a user's password");
+        Console.WriteLine("CHANGEPASSWORD - change password for a user");
+        Console.WriteLine("DEACTIVATE     - deactivate a user");
+        Console.WriteLine("ACTIVATE       - activate a user");
+        Console.WriteLine("STATS          - show basic stats");
+        Console.WriteLine("GRADESTATS     - show grade distribution");
+        Console.WriteLine("COURSESTATS    - show course stats");
+        Console.WriteLine("ACTIVITYSTATS  - show user activity");
+        Console.WriteLine("MESSAGE        - send notifications");
+        Console.WriteLine("INBOX          - read your messages");
+        Console.WriteLine("LOGS           - show system logs");
+        Console.WriteLine("SAVELOGS       - save logs to file");
+        Console.WriteLine("CLEARLOGS      - clear system logs");
+        Console.WriteLine("VIEWMESSAGES   - view all messages in system");
+        Console.WriteLine("FORCELOGOUT    - force logout a user");
+        Console.WriteLine("BACKUP         - save backup of all data");
+        Console.WriteLine("RESTORE        - restore backup");
+        Console.WriteLine("Logout         - log out");
 
         string adminInput = Console.ReadLine();
 
@@ -109,6 +112,14 @@ while (running)
           case "ADD":
             Console.Write("Username: ");
             string aUser = Console.ReadLine();
+
+            // ==VALIDATE==
+            if (users.Any(u => u.GetUsername().Equals(aUser, StringComparison.OrdinalIgnoreCase)))
+            {
+              Console.WriteLine("Error: Username already exist!");
+              Console.ReadLine();
+              break;
+            }
             Console.Write("Name: ");
             string aName = Console.ReadLine();
             Console.Write("Password: ");
@@ -189,6 +200,71 @@ while (running)
             else Console.WriteLine("User not found.");
             Console.ReadLine();
             break;
+
+          case "CHANGEPASSWORD":
+            Console.Write("Enter username to change password: ");
+            string cpUser = Console.ReadLine();
+            var changeTarget = users.FirstOrDefault(u => u.GetUsername() == cpUser);
+
+            if (changeTarget != null)
+            {
+              Console.Write("Enter new password: ");
+              string newPass = Console.ReadLine();
+
+              if (changeTarget is Admin ad)
+              {
+                ad.SetPassword(newPass);
+              }
+              else if (changeTarget is Teacher te)
+              {
+                te.SetPassword(newPass);
+              }
+              else if (changeTarget is Student st)
+              {
+                st.SetPassword(newPass);
+              }
+
+              Console.WriteLine("Password updated successfully!");
+              logs.Add($"Admin {active_user.GetUsername()} changed password for {cpUser}");
+            }
+            else
+            {
+              Console.WriteLine("User not found.");
+            }
+            Console.ReadLine();
+            break;
+
+          case "DEACTIVATE":
+
+            Console.Write("Enter username to deactivate:");
+            string dUser = Console.ReadLine();
+            var deactTarget = users.FirstOrDefault(u => u.GetUsername() == dUser && u.GetRole() != Role.Admin);
+            if (deactTarget != null)
+            {
+              deactTarget.IsActive = false;
+              Console.WriteLine($"{dUser} has been deactivated.");
+              logs.Add($"Admin {active_user.GetUsername()} deactivated {dUser}");
+            }
+            else Console.WriteLine("User not found or cannot deactivate Admins");
+            Console.ReadLine();
+            break;
+
+          case "ACTIVATE":
+            Console.Write("Enter username to activate: ");
+            string aUser2 = Console.ReadLine();
+            var actTarget = users.FirstOrDefault(u => u.GetUsername() == aUser2);
+            if (actTarget != null)
+            {
+              actTarget.IsActive = true;
+              Console.WriteLine($"{aUser2} has been activated.");
+              logs.Add($"Admin {active_user.GetUsername()} activated {aUser2}");
+            }
+            else Console.WriteLine("User not found.");
+            Console.ReadLine();
+            break;
+
+
+
 
           case "CREATESCHEDULE":
             Console.Write("Course: ");
@@ -384,10 +460,10 @@ while (running)
         Console.WriteLine("SHOWTEACHERS - see all teachers");
         Console.WriteLine("SHOWSTUDENTS - see all students");
         Console.WriteLine("SHOWSCHEDULE - see schedule");
-        Console.WriteLine("ASSIGNMENTS - see student submissions and grade them");
-        Console.WriteLine("MESSAGE     - send notifications");
-        Console.WriteLine("INBOX       - read your messages");
-        Console.WriteLine("Logout      - log out");
+        Console.WriteLine("ASSIGNMENTS  - see student submissions and grade them");
+        Console.WriteLine("MESSAGE      - send notifications");
+        Console.WriteLine("INBOX        - read your messages");
+        Console.WriteLine("Logout       - log out");
 
         string teacherInput = Console.ReadLine();
         switch (teacherInput)
@@ -459,13 +535,13 @@ while (running)
       case Role.Student:
         Console.WriteLine("Welcome Student");
         Console.WriteLine("Options: ");
-        Console.WriteLine("SUBMIT     - submit assignment");
-        Console.WriteLine("MYSUBS     - see your submissions & grades");
+        Console.WriteLine("SUBMIT       - submit assignment");
+        Console.WriteLine("MYSUBS       - see your submissions & grades");
         Console.WriteLine("SHOWSCHEDULE - see your schedule");
         Console.WriteLine("SHOWTEACHERS - see all teachers");
-        Console.WriteLine("MESSAGE    - send messages");
-        Console.WriteLine("INBOX      - read your messages");
-        Console.WriteLine("Logout     - log out");
+        Console.WriteLine("MESSAGE      - send messages");
+        Console.WriteLine("INBOX        - read your messages");
+        Console.WriteLine("Logout       - log out");
 
         string stuInput = Console.ReadLine();
         switch (stuInput)

@@ -1,31 +1,52 @@
 namespace Learnpoint
 {
-  public class Admin : IUSer
+  class Admin : IUSer
   {
-    public string Username { get; private set; }
-    public string Name { get; set; }
-    private string Password { get; set; }
+    public string UserName;
+    public string Name;
+    string _passwordHash;
+
+    public bool IsActive { get; set; } = true;
 
     public Admin(string username, string name, string password)
     {
-      Username = username;
+      UserName = username;
       Name = name;
-      Password = password;
+      _passwordHash = PasswordHelper.HashPassword(password);
     }
 
-    public string GetUsername() => Username;
-    public string GetName() => Name;
-    public string GetPassword() => Password;
-    public Role GetRole() => Role.Admin;
-
-    public bool TryLogin(string username, string password) =>
-        Username == username && Password == password;
+    public void SetPassword(string newPassword)
+    {
+      _passwordHash = PasswordHelper.HashPassword(newPassword);
+    }
 
     public void Info()
     {
-      Console.WriteLine($"[Admin] {Name} ({Username})");
+      Console.WriteLine($"Name: {Name}. Role: {GetRole()}");
     }
 
-    public void SetPassword(string newPassword) => Password = newPassword;
+    public bool TryLogin(string username, string password)
+    {
+      return username == UserName && PasswordHelper.VerifyPassword(password, _passwordHash);
+    }
+
+    public Role GetRole()
+    {
+      return Role.Admin;
+    }
+
+    public string GetUsername()
+    {
+      return UserName;
+    }
+
+    public string GetName()
+    {
+      return Name;
+    }
+    public string GetPassword()
+    {
+      return _passwordHash;
+    }
   }
 }

@@ -1,0 +1,12 @@
+USER|Admin|Edvin@hotmail.se|Edvin|helloworld
+USER|Teacher|Alex@hotmail.se|Alex|password
+USER|Student|Jarl@hotmail.se|Jarl|password
+USER|Student|Kiffle@hotmail.se|Kiffle|password
+SCHEDULE|OOP|Alex|FRIDAY|09:00-17:00
+SCHEDULE|Database|Alex|Thursday|09:00-15:00
+MSG|Edvin@hotmail.se|Alex@hotmail.se|Hej alla 
+LOG|Admin Edvin@hotmail.se created schedule OOP Thuesday 09:00-16:00
+LOG|Admin Edvin@hotmail.se created schedule Database Thursday 09:00-15:00
+LOG|Admin Edvin@hotmail.se updated schedule OOP
+LOG|Admin Edvin@hotmail.se updated Kiffle@hotmail.se
+LOG|Admin Edvin@hotmail.se reset password for Edvin@hotmail.se
