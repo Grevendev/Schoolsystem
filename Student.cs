@@ -47,5 +47,7 @@ namespace Learnpoint
     {
       return _passwordHash;
     }
+    public int FailedLogins { get; set; }
+    public bool MustChangePassword { get; set; } = false;
   }
 }

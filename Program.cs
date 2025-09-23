@@ -35,33 +35,70 @@ while (running)
   if (active_user == null)
   {
     Console.Clear();
-    Console.WriteLine("==LOGIN==");
-    Console.WriteLine("username: ");
+    Console.WriteLine("===LOGIN===");
+    Console.Write("username: ");
     string username = Console.ReadLine();
 
-    Console.WriteLine("");
-    Console.WriteLine("password: ");
+    Console.Write("password: ");
     string _password = Console.ReadLine();
 
-    foreach (IUSer user in users)
-    {
-      if (user.TryLogin(username, _password) && user.IsActive)
-      {
-        active_user = user;
+    var user = users.FirstOrDefault(u => u.GetUsername().Equals(username, StringComparison.OrdinalIgnoreCase));
 
-        // Logga inräkning
-        if (!loginCounts.ContainsKey(user.GetUsername()))
-          loginCounts[user.GetUsername()] = 0;
-        loginCounts[user.GetUsername()]++;
-        activeSessions.Add(user.GetUsername());
-
-        break;
-      }
-    }
-    if (active_user == null)
+    if (user == null)
     {
-      Console.WriteLine("Login failed. Try again...");
+      Console.WriteLine("User not found.");
       Thread.Sleep(1500);
+      continue;
+    }
+
+    // Kolla om användaren är avstängd
+
+    if (!user.IsActive)
+    {
+      Console.WriteLine("Account is deactivated. Contact admin.");
+      Thread.Sleep(2000);
+      continue;
+    }
+
+    // Kolla lösenord
+
+    if (user.TryLogin(username, _password))
+    {
+      user.FailedLogins = 0; //reset
+
+      //Om lösenordet måste bytas
+
+      if (user.MustChangePassword)
+      {
+        Console.WriteLine("You must change your password before continuing.");
+        Console.Write("New password: ");
+        string newPass = Console.ReadLine();
+        user.SetPassword(newPass);
+        user.MustChangePassword = false;
+        Console.WriteLine("Password updated seccessfully!");
+        Thread.Sleep(1500);
+      }
+      active_user = user;
+
+      // Logga inräkning
+      if (!loginCounts.ContainsKey(user.GetUsername()))
+        loginCounts[user.GetUsername()] = 0;
+      loginCounts[user.GetUsername()]++;
+      activeSessions.Add(user.GetUsername());
+    }
+    else
+    {
+      user.FailedLogins++;
+      if (user.FailedLogins >= 3)
+      {
+        user.IsActive = false;
+        Console.WriteLine("Account locked after 3 failed login attempts. Contact admin.");
+      }
+      else
+      {
+        Console.WriteLine($"Login failed. {3 - user.FailedLogins} attempts remaining...");
+      }
+      Thread.Sleep(2000);
     }
   }
   else
@@ -101,6 +138,7 @@ while (running)
         Console.WriteLine("CLEARLOGS      - clear system logs");
         Console.WriteLine("VIEWMESSAGES   - view all messages in system");
         Console.WriteLine("FORCELOGOUT    - force logout a user");
+        Console.WriteLine("UNLOCK         - unlock a locked user account");
         Console.WriteLine("BACKUP         - save backup of all data");
         Console.WriteLine("RESTORE        - restore backup");
         Console.WriteLine("Logout         - log out");
@@ -381,6 +419,26 @@ while (running)
               logs.Add($"Admin {active_user.GetUsername()} forced logout of {flUser}");
             }
             else Console.WriteLine("User not active.");
+            Console.ReadLine();
+            break;
+
+          case "UNLOCK":
+            Console.Write("Enter username to unlock: ");
+            string unlockUser = Console.ReadLine();
+            var unlockTarget = users.FirstOrDefault(u => u.GetUsername() == unlockUser);
+
+            if (unlockTarget != null)
+            {
+              unlockTarget.IsActive = true;
+              unlockTarget.FailedLogins = 0;
+              unlockTarget.MustChangePassword = true; // Tvinga lösenordsbyte vid nästa inlogging
+              Console.WriteLine($"{unlockUser} has been unlocked. User must change password on next login.");
+              logs.Add($"Admin {active_user.GetUsername()} unlocked account {unlockUser}");
+            }
+            else
+            {
+              Console.WriteLine("User not found.");
+            }
             Console.ReadLine();
             break;
 

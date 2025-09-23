@@ -14,5 +14,9 @@ namespace Learnpoint
     string GetUsername();
     string GetName();
     string GetPassword();
+    void SetPassword(string newPassword);
+    int FailedLogins { get; set; }
+    bool MustChangePassword { get; set; }
+
   }
 }
