@@ -664,7 +664,7 @@ void BackupSystem(List<IUSer> users, List<Schedule> schedules, List<Assignment> 
 {
   using (StreamWriter sw = new StreamWriter("backup.txt"))
   {
-    foreach (var u in users) sw.WriteLine($"USER|{u.GetRole()}|{u.GetUsername()}|{u.GetName()}|{u.GetPassword()}");
+    foreach (var u in users) sw.WriteLine($"USER|{u.GetRole()}|{u.GetUsername()}|{u.GetName()}");
     foreach (var s in schedules) sw.WriteLine($"SCHEDULE|{s.Course}|{s.Teacher}|{s.Day}|{s.Time}");
     foreach (var a in assignments) sw.WriteLine($"ASSIGN|{a.Title}|{a.Grade}");
     foreach (var sub in submissions) sw.WriteLine($"SUB|{sub.StudentUsername}|{sub.AssignmentTitle}|{sub.Content}|{sub.Grade}");
@@ -691,9 +691,12 @@ void RestoreSystem(out List<IUSer> users, out List<Schedule> schedules, out List
     {
       case "USER":
         Role r = Enum.Parse<Role>(parts[1]);
-        if (r == Role.Admin) users.Add(new Admin(parts[2], parts[3], parts[4]));
-        if (r == Role.Teacher) users.Add(new Teacher(parts[2], parts[3], parts[4]));
-        if (r == Role.Student) users.Add(new Student(parts[2], parts[3], parts[4]));
+        string username = parts[2];
+        string name = parts[3];
+        string defaultPass = "changeme";
+        if (r == Role.Admin) users.Add(new Admin(username, name, defaultPass));
+        if (r == Role.Teacher) users.Add(new Teacher(username, name, defaultPass));
+        if (r == Role.Student) users.Add(new Student(username, name, defaultPass));
         break;
       case "SCHEDULE":
         schedules.Add(new Schedule(parts[1], parts[2], parts[3], parts[4]));

@@ -4,8 +4,11 @@ namespace Learnpoint
   {
     public string UserName;
     public string Name;
-    string _passwordHash;
+    private string _passwordHash;
 
+    // Nya interface-egenskaper
+    public int FailedLogins { get; set; } = 0;
+    public bool MustChangePassword { get; set; } = false;
     public bool IsActive { get; set; } = true;
 
     public Admin(string username, string name, string password)
@@ -18,6 +21,11 @@ namespace Learnpoint
     public void SetPassword(string newPassword)
     {
       _passwordHash = PasswordHelper.HashPassword(newPassword);
+    }
+
+    public string GetPassword()
+    {
+      return _passwordHash; // returnerar hash för backup/restore
     }
 
     public void Info()
@@ -43,10 +51,6 @@ namespace Learnpoint
     public string GetName()
     {
       return Name;
-    }
-    public string GetPassword()
-    {
-      return _passwordHash;
     }
   }
 }
